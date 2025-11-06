@@ -1,0 +1,76 @@
+.wrap {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem var(--pad-x, 2rem);
+}
+
+.title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+  color: var(--text);
+}
+
+/* ⬇️ The important bits */
+.drop {
+  display: block;          /* <-- fix: label must be block */
+  width: 100%;             /* <-- full width inside .wrap */
+  box-sizing: border-box;  /* <-- keep borders inside width */
+  margin: 1rem 0 1.25rem;
+  border: 2px dashed var(--border);
+  background: var(--card-bg);
+  padding: 2.2rem 1rem;
+  border-radius: 16px;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(0,0,0,.04);
+}
+.drop:hover { background: var(--card-hover); }
+
+.dropIcon { font-size: 2rem; }
+.dropLead { margin-top: .6rem; font-weight: 600; }
+.dropSub  { margin-top: .2rem; color: var(--text-muted); }
+
+.row {
+  display: flex;
+  gap: .75rem;
+  margin-top: 1.25rem;
+  align-items: center;
+}
+
+.hiddenFile { display: none; }
+
+.nameInput {
+  flex: 1;
+  height: 44px;
+  padding: 0 .9rem;
+  border-radius: 12px;
+  border: 1px solid var(--card-border);
+  background: var(--input-bg);
+  color: var(--text);
+}
+
+.btn {
+  height: 44px;
+  padding: 0 1.2rem;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 6px 16px rgba(59,130,246,.25);
+}
+.btn:hover { filter: brightness(1.02); }
+.btnDisabled { opacity: .6; pointer-events: none; }
+
+.progressWrap { margin-top: 1rem; display: flex; align-items: center; gap: .75rem; }
+.progressBar {
+  flex: 1; height: 6px; border-radius: 999px;
+  background: var(--track);
+  overflow: hidden; border: 1px solid var(--card-border);
+}
+.progressFill {
+  height: 100%; background: var(--accent);
+  transition: width .08s linear;
+}
+.progressText { min-width: 48px; text-align: right; color: var(--text-muted); }

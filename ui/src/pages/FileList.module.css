@@ -1,0 +1,203 @@
+.container {
+  composes: container-page from global;
+  padding-top: 1.25rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: .5rem;
+}
+
+.title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* SB-A: Enterprise boxed search (SR-3, SB-MD height) */
+.searchWrap {
+  margin: .5rem 0 1rem 0;
+}
+.searchBox {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 44px;                 /* SB-MD */
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.04);
+  transition: .18s ease;
+}
+.searchBox:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(59,130,246,.18), 0 6px 18px rgba(0,0,0,.06);
+}
+.searchIcon {
+  padding: 0 .75rem;
+  opacity: .7;
+}
+.searchInput {
+  flex: 1;
+  height: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--text);
+  font-size: .98rem;
+}
+.clearBtn {
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1rem;
+  padding: 0 .6rem;
+  cursor: pointer;
+  opacity: .75;
+  transition: .15s ease;
+}
+.clearBtn:hover { opacity: 1; }
+
+/* === GRID === */
+.grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  align-items: stretch;
+}
+
+/* === CARD === */
+.card {
+  background: var(--card-bg, #ffffff);
+  border: 1px solid var(--card-border, #e5e7eb);
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+  min-height: 150px;
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+/* === ICON + NAME === */
+.row1 {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  background: rgba(59, 130, 246, 0.12);
+  color: #2563eb;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+/* === FILE NAME === */
+.name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: #111827;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 1;
+}
+
+/* === META (bytes) === */
+.meta {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-top: 0.35rem;
+  min-height: 1.2em;
+}
+
+/* === BUTTON ROW === */
+.row2 {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: auto;
+}
+
+/* === BUTTONS === */
+.openBtn,
+.deleteBtn {
+  flex: 1;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease, color 0.2s ease;
+}
+
+/* Open Button */
+.openBtn {
+  background: #2563eb;
+  color: #fff;
+}
+.openBtn:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+/* Delete Button */
+.deleteBtn {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+}
+.deleteBtn:hover {
+  background: #fee2e2;
+  transform: translateY(-1px);
+}
+
+/* === DARK THEME (triggered by <html class="dark">) === */
+:root.dark .card {
+  background: #1f242b;
+  border-color: #2e3239;
+}
+:root.dark .icon {
+  background: rgba(59, 130, 246, 0.18);
+  color: #60a5fa;
+}
+:root.dark .name {
+  color: #f3f4f6;
+}
+:root.dark .meta {
+  color: #9ca3af;
+}
+:root.dark .openBtn {
+  background: #3b82f6;
+  color: #f8fafc;
+}
+:root.dark .openBtn:hover {
+  background: #2563eb;
+}
+:root.dark .deleteBtn {
+  background: rgba(239, 68, 68, 0.12);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+:root.dark .deleteBtn:hover {
+  background: rgba(239, 68, 68, 0.22);
+}

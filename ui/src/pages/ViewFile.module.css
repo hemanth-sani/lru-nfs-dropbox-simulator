@@ -1,0 +1,105 @@
+.container {
+  padding: 1.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 1100px;
+  margin: auto;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.backBtn {
+  padding: 0.4rem 0.9rem;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color, #d1d5db);
+  background: var(--btn-bg, #f8fafc);
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.backBtn:hover {
+  background: #f1f5f9;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.size {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.downloadBtn, .deleteBtn {
+  padding: 0.4rem 0.9rem;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.downloadBtn:hover {
+  background: #e2f3e2;
+}
+.deleteBtn {
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+.deleteBtn:hover {
+  background: #fee2e2;
+}
+
+.previewContainer {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1rem;
+  background: #f9fafb;
+  min-height: 400px;
+}
+
+.loading {
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.95rem;
+  margin-top: 2rem;
+}
+
+.previewImage, .previewFrame {
+  width: 100%;
+  height: 70vh;
+  border-radius: 10px;
+  border: none;
+  display: block;
+  background: white;
+  object-fit: contain;
+}
+
+.textPreview {
+  font-size: 0.9rem;
+  color: #1e293b;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: #fff;
+  border-radius: 8px;
+  padding: 1rem;
+  max-height: 70vh;
+  overflow: auto;
+}
+
+.noPreview {
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.95rem;
+  margin-top: 3rem;
+  font-style: italic;
+}

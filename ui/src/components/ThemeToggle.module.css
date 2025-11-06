@@ -1,0 +1,17 @@
+.btn {
+  width: 36px; height: 36px;
+  border-radius: 999px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: transparent;
+  border: 1px solid var(--border);
+  transition: .2s ease-in-out;
+}
+.btn:hover { background: var(--pill-hover); }
+.on { box-shadow: 0 0 0 3px rgba(96,165,250,.25); }
+
+.icon {
+  display: inline-block;
+  transform: rotate(0deg);
+  transition: transform .25s ease;
+}
+.on .icon { transform: rotate(180deg); }

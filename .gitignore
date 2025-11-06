@@ -1,0 +1,44 @@
+# Node / NestJS / React
+node_modules/
+dist/
+build/
+.env
+
+# React local dev
+ui/node_modules/
+ui/build/
+
+# NestJS compiled output
+api-gateway/dist/
+
+# C++ build output / temp data
+cpp-core/data/
+cpp-core/build/
+cpp-core/*.exe
+cpp-core/*.obj
+cpp-core/*.pdb
+
+# Testing files
+Testing files/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# C++ build artifacts
+cpp-core/*.exe
+cpp-core/*.obj
+cpp-core/*.o
+cpp-core/data/
+
+# Node build artifacts
+api-gateway/node_modules/
+api-gateway/dist/
+
+ui/node_modules/
+ui/dist/
+
+# Editor / temp files
+*.log
+*.DS_Store
+

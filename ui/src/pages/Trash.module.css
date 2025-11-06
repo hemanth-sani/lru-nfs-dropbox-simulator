@@ -1,0 +1,137 @@
+.container {
+  padding: 1.5rem 2rem;
+  max-width: 1100px;
+  margin: auto;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.refreshBtn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: background 0.2s ease-in-out;
+}
+.refreshBtn:hover {
+  background: #2563eb;
+}
+
+.grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+.card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.2s ease-in-out;
+}
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+.row1 {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.8rem;
+}
+
+.icon {
+  font-size: 1.4rem;
+}
+
+.name {
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: #334155;
+  word-break: break-all;
+}
+
+.row2 {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.restoreBtn,
+.deleteBtn {
+  border: none;
+  border-radius: 6px;
+  padding: 0.45rem 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 0.85rem;
+  width: 100%;
+}
+
+.restoreBtn {
+  background: #e7f7ec;
+  color: #166534;
+}
+.restoreBtn:hover {
+  background: #d1f0d9;
+}
+
+.deleteBtn {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+.deleteBtn:hover {
+  background: #fecaca;
+}
+
+.empty {
+  text-align: center;
+  color: #64748b;
+  margin-top: 3rem;
+  font-size: 1rem;
+  font-style: italic;
+}
+
+.emptyIcon {
+  font-size: 2.5rem;
+  margin-bottom: 0.3rem;
+}
+
+.emptyLead {
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.emptySub {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  margin-top: 0.2rem;
+}
+
+.muted {
+  color: #94a3b8;
+  text-align: center;
+  font-size: 0.95rem;
+  margin-top: 2rem;
+}

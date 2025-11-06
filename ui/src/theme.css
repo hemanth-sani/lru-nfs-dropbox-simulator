@@ -1,0 +1,68 @@
+/* ---------- Layout base ---------- */
+html, body, #root { height: 100%; }
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-feature-settings: "ss01" on, "cv01" on;
+  transition: background .25s ease, color .25s ease;
+  background: linear-gradient(to bottom, var(--bg0), var(--bg1));
+  color: var(--text);
+}
+
+/* ---------- LIGHT (Premium SaaS) ---------- */
+:root {
+  --text: #1a1a1a;
+  --text-muted: #6b7280;         /* softer slate */
+  --accent: #2563eb;             /* blue-600 */
+  --accent-strong: #1d4ed8;      /* blue-700 */
+
+  --nav-bg: #ffffff;
+  --border: #d9dce0;
+
+  /* BG3 gradient (light) */
+  --bg0: #f7f9fc;                /* subtle blue white */
+  --bg1: #ffffff;
+
+  --card-bg: #ffffff;
+  --card-border: #e5e9f2;
+  --card-hover: #f2f4f8;
+
+  --input-bg: #ffffff;
+  --track: #eaeef5;
+}
+
+/* ---------- DARK (SaaS Navy – gentle on eyes) ---------- */
+html.dark {
+  --text: #e5ecff;               /* soft blue-white (TXT-B) */
+  --text-muted: #8ca3c7;         /* calm muted */
+  --accent: #3b82f6;             /* blue-500 */
+  --accent-strong: #2563eb;      /* blue-600 */
+
+  --nav-bg: #0a0f1c;
+  --border: #283040;
+
+  /* BG3 gradient (navy → deeper navy) */
+  --bg0: #0b0f19;
+  --bg1: #0f172a;
+
+  --card-bg: #111a2e;
+  --card-border: #243042;
+  --card-hover: #1b2740;
+
+  --input-bg: #0f1729;
+  --track: #1f2a40;
+}
+
+/* ---------- Ensure body reflects theme ---------- */
+html.dark body {
+  background: linear-gradient(to bottom, var(--bg0), var(--bg1));
+  color: var(--text);
+}
+
+/* ---------- Page container ---------- */
+.container-page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 2rem; /* PAD-M */
+}

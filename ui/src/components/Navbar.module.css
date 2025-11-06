@@ -1,0 +1,64 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  height: 72px; /* NB-MD */
+  display: flex;
+  align-items: center;
+  background: var(--nav-bg);
+  border-bottom: 1px solid var(--border);
+  transition: background .25s ease, border-color .25s ease;
+}
+
+.inner {
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 2rem; /* PAD-M */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-size: 1.15rem;
+  font-weight: 600;
+  display: flex;
+  gap: .45rem;
+  align-items: center;
+  color: var(--text);
+}
+
+.tabs {
+  display: flex;
+  gap: .85rem;
+}
+
+.tab, .tabActive {
+  border-radius: 999px;                /* Pill-Soft */
+  font-size: .92rem;
+  padding: .5rem 1.1rem;
+  cursor: pointer;
+  transition: .22s ease-in-out;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.tab {
+  color: var(--text-muted);
+}
+.tab:hover {
+  background: rgba(59,130,246,.09);    /* light blue wash */
+  color: var(--text);
+}
+
+.tabActive {
+  background: var(--accent);           /* NAV-C1 active pill */
+  color: #fff;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
