@@ -1,5 +1,4 @@
-// NFS-like storage server with TCP streaming + LRU caching + trash
-// server.cpp — multi-file binary store with per-file LRU cache + verbose debug tracing + trace-id support
+
 #include "common.hpp"
 
 #include <winsock2.h>
@@ -146,7 +145,7 @@ static LRU* cache_for(const std::string& name) {
     std::lock_guard<std::mutex> lk(g_caches_mtx);
     auto it = g_fileCaches.find(name);
     if (it != g_fileCaches.end()) return it->second;
-    LRU* l = new LRU(CACHE_CAPACITY);
+    LRU* l = new LRU(128);
     g_fileCaches[name] = l;
     return l;
 }
@@ -257,8 +256,8 @@ static std::string list_files_payload() {
 // ---------------- read / write ----------------
 static std::mutex g_write_mtx;
 
-static bool doLOGT("read"); _read(int fd, const std::string& fname, long long off, long long len, std::vector<char>& out, const std::string& trace="") {
-    log_msg(LogLevel::INFO, "doLOGT("read"); _read(" + fname + ", off=" + std::to_string(off) + ", len=" + std::to_string(len) + ")", trace);
+static bool do_read(int fd, const std::string& fname, long long off, long long len, std::vector<char>& out, const std::string& trace="") {
+    log_msg(LogLevel::INFO, "do_read(" + fname + ", off=" + std::to_string(off) + ", len=" + std::to_string(len) + ")", trace);
     if (off < 0 || len < 0) return false;
     Key k{off, len};
     LRU* lru = cache_for(fname);
@@ -269,7 +268,7 @@ static bool doLOGT("read"); _read(int fd, const std::string& fname, long long of
     auto start = std::chrono::high_resolution_clock::now();
     out.assign((size_t)len, 0);
     _lseek(fd, (long)off, SEEK_SET);
-    int n = LOGT("read"); _read(fd, out.data(), (unsigned)len);
+    int n = _read(fd, out.data(), (unsigned)len);
     if (n < 0) return false;
     out.resize((size_t)n);
     lru->put(k, std::vector<char>(out.begin(), out.end()));
@@ -279,8 +278,8 @@ static bool doLOGT("read"); _read(int fd, const std::string& fname, long long of
     return true;
 }
 
-static bool doLOGT("write"); _write(int fd, const std::string& fname, long long off, const char* data, long long len, const std::string& trace="") {
-    log_msg(LogLevel::INFO, "doLOGT("write"); _write(" + fname + ", off=" + std::to_string(off) + ", len=" + std::to_string(len) + ")", trace);
+static bool do_write(int fd, const std::string& fname, long long off, const char* data, long long len, const std::string& trace="") {
+    log_msg(LogLevel::INFO, "do_write(" + fname + ", off=" + std::to_string(off) + ", len=" + std::to_string(len) + ")", trace);
     if (off < 0 || len < 0) return false;
 
     { std::lock_guard<std::mutex> lk(g_caches_mtx);
@@ -290,7 +289,7 @@ static bool doLOGT("write"); _write(int fd, const std::string& fname, long long 
     std::lock_guard<std::mutex> lk2(g_write_mtx);
     auto start = std::chrono::high_resolution_clock::now();
     _lseek(fd, (long)off, SEEK_SET);
-    int n = LOGT("write"); _write(fd, data, (unsigned)len);
+    int n = _write(fd, data, (unsigned)len);
     auto end = std::chrono::high_resolution_clock::now();
     auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
     log_msg(LogLevel::INFO, "✅ File write complete: " + std::to_string(n) + " bytes (" + std::to_string(ms) + " ms)", trace);
@@ -429,7 +428,7 @@ static void handle_client(SOCKET cs) {
             long long len = std::stoll(line.substr(p2 + 1));
             TRACE_LOG(LogLevel::INFO, "READ " + current_name + " off=" + std::to_string(off) + " len=" + std::to_string(len));
             std::vector<char> bytes;
-            if (!doLOGT("read"); _read(fd, current_name, off, len, bytes, trace_id)) { send_all(cs, "ERR\n", 4); continue; }
+            if (!do_read(fd, current_name, off, len, bytes, trace_id)) { send_all(cs, "ERR\n", 4); continue; }
             std::string hdr = "OK " + std::to_string(bytes.size()) + "\n";
             send_all(cs, hdr.c_str(), (int)hdr.size());
             if (!bytes.empty()) send_all(cs, bytes.data(), (int)bytes.size());
@@ -441,7 +440,7 @@ static void handle_client(SOCKET cs) {
             TRACE_LOG(LogLevel::INFO, "WRITE " + current_name + " off=" + std::to_string(off) + " len=" + std::to_string(len));
             std::vector<char> tmp((size_t)len);
             if (!recv_n(cs, tmp.data(), (int)len)) { send_all(cs, "ERR\n", 4); continue; }
-            if (!doLOGT("write"); _write(fd, current_name, off, tmp.data(), len, trace_id)) { send_all(cs, "ERR\n", 4); continue; }
+            if (!do_write(fd, current_name, off, tmp.data(), len, trace_id)) { send_all(cs, "ERR\n", 4); continue; }
             std::string hdr = "OK " + std::to_string(len) + "\n";
             send_all(cs, hdr.c_str(), (int)hdr.size());
 
@@ -497,7 +496,17 @@ static void handle_client(SOCKET cs) {
 
             std::string trashDir = DATA_DIR + "/.trash";
             std::string src = trashDir + "/" + name;
-            std::string dst = DATA_DIR + "/" + name;
+
+            // Generate a collision-safe destination name
+            fs::path namePath(name);
+            std::string base = namePath.stem().string();
+            std::string ext  = namePath.extension().string();
+            std::string dst  = DATA_DIR + "/" + name;
+
+            int counter = 1;
+            while (fs::exists(dst)) {
+                dst = DATA_DIR + "/" + base + " (" + std::to_string(counter++) + ")" + ext;
+            }
 
             std::error_code ec;
             fs::rename(src, dst, ec);
@@ -505,7 +514,7 @@ static void handle_client(SOCKET cs) {
                 TRACE_LOG(LogLevel::ERR, "Failed to restore: " + ec.message());
                 send_all(cs, "ERR\n", 4);
             } else {
-                TRACE_LOG(LogLevel::INFO, "♻️ Restored from trash: " + name);
+                TRACE_LOG(LogLevel::INFO, "♻️ Restored to: " + dst);
                 send_all(cs, "OK\n", 3);
             }
         } else if (cmd == "PURGETRASH") {
@@ -539,7 +548,7 @@ int main(int argc, char* argv[]) {
     set_data_dir_from_env();
 
     WSADATA wsa;
-    if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) { LOGE << "WSAStartup failed\n"; return 1; }
+    if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) { std::cerr << "WSAStartup failed\n"; return 1; }
 
     SOCKET s = socket(AF_INET, SOCK_STREAM, 0);
     int yes = 1; setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (const char*)&yes, sizeof(yes));
@@ -549,8 +558,8 @@ int main(int argc, char* argv[]) {
     addr.sin_port = htons(SERVER_PORT);
     inet_pton(AF_INET, SERVER_ADDR.c_str(), &addr.sin_addr);
 
-    if (bind(s, (sockaddr*)&addr, sizeof(addr)) == SOCKET_ERROR) { LOGE << "bind() failed\n"; return 1; }
-    if (listen(s, SOMAXCONN) == SOCKET_ERROR) { LOGE << "listen() failed\n"; return 1; }
+    if (bind(s, (sockaddr*)&addr, sizeof(addr)) == SOCKET_ERROR) { std::cerr << "bind() failed\n"; return 1; }
+    if (listen(s, SOMAXCONN) == SOCKET_ERROR) { std::cerr << "listen() failed\n"; return 1; }
 
     LOGI("🚀 Server started on " + SERVER_ADDR + ":" + std::to_string(SERVER_PORT));
     LOGI("📂 Data directory: " + DATA_DIR);
@@ -562,16 +571,3 @@ int main(int argc, char* argv[]) {
     }
     return 0;
 }
-// LRU removes least recently accessed buffer on capacity pressure
-// note: minor log point (2025-09-28 19:19:00)
-// note: minor log point (2025-10-03 18:3:00)
-// note: minor log point (2025-10-04 9:22:00)
-// note: minor log point (2025-10-05 14:56:00)
-// note: minor log point (2025-10-06 19:30:00)
-// note: minor log point (2025-10-10 13:6:00)
-// note: minor log point (2025-10-12 19:27:00)
-// note: minor log point (2025-10-15 17:36:00)
-// note: minor log point (2025-10-16 16:14:00)
-// note: minor log point (2025-10-18 9:23:00)
-// note: minor log point (2025-10-18 10:19:00)
-// note: minor log point (2025-10-31 16:9:00)
