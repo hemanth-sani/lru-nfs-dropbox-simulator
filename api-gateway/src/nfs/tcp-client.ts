@@ -44,42 +44,82 @@ async function sendAll(sock: net.Socket, buf: Buffer) {
 }
 
 async function readLine(sock: net.Socket): Promise<string> {
-  let buf = Buffer.alloc(0);
-  while (true) {
-    const chunk: Buffer = await new Promise((res, rej) => {
-      sock.once('data', res);
-      sock.once('error', rej);
-      sock.once('close', () => rej(new Error('socket closed')));
-    });
-    buf = Buffer.concat([buf, chunk]);
-    const i = buf.indexOf(0x0a); // '\n'
-    if (i >= 0) {
-      const line = buf.slice(0, i).toString('utf8').replace(/\r$/, '');
-      const rest = buf.slice(i + 1);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-      if (rest.length) (sock as any).unshift?.(rest);
-      return line;
+  return new Promise((resolve, reject) => {
+    let buffer = Buffer.alloc(0);
+
+    const onData = (chunk: Buffer) => {
+      buffer = Buffer.concat([buffer, chunk]);
+      const idx = buffer.indexOf(0x0a); // '\n'
+
+      if (idx !== -1) {
+        const line = buffer.slice(0, idx).toString('utf8').replace(/\r$/, '');
+        const rest = buffer.slice(idx + 1);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+        if ((sock as any).unshift && rest.length) (sock as any).unshift(rest);
+
+        cleanup();
+        resolve(line);
+      }
+    };
+
+    const onError = (err: Error) => {
+      cleanup();
+      reject(err);
+    };
+    const onClose = () => {
+      cleanup();
+      reject(new Error('socket closed'));
+    };
+
+    function cleanup() {
+      sock.off('data', onData);
+      sock.off('error', onError);
+      sock.off('close', onClose);
     }
-  }
+
+    sock.on('data', onData);
+    sock.once('error', onError);
+    sock.once('close', onClose);
+  });
 }
 
 async function readN(sock: net.Socket, n: number): Promise<Buffer> {
-  let out = Buffer.alloc(0);
-  while (out.length < n) {
-    const chunk: Buffer = await new Promise((res, rej) => {
-      sock.once('data', res);
-      sock.once('error', rej);
-      sock.once('close', () => rej(new Error('socket closed')));
-    });
-    out = Buffer.concat([out, chunk]);
-  }
-  if (out.length > n) {
-    const rest = out.slice(n);
-    out = out.slice(0, n);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    if (rest.length) (sock as any).unshift?.(rest);
-  }
-  return out;
+  return new Promise((resolve, reject) => {
+    let buffer = Buffer.alloc(0);
+
+    const onData = (chunk: Buffer) => {
+      buffer = Buffer.concat([buffer, chunk]);
+
+      if (buffer.length >= n) {
+        const out = buffer.slice(0, n);
+        const rest = buffer.slice(n);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+        if ((sock as any).unshift && rest.length) (sock as any).unshift(rest);
+
+        cleanup();
+        resolve(out);
+      }
+    };
+
+    const onError = (err: Error) => {
+      cleanup();
+      reject(err);
+    };
+    const onClose = () => {
+      cleanup();
+      reject(new Error('socket closed'));
+    };
+
+    function cleanup() {
+      sock.off('data', onData);
+      sock.off('error', onError);
+      sock.off('close', onClose);
+    }
+
+    sock.on('data', onData);
+    sock.once('error', onError);
+    sock.once('close', onClose);
+  });
 }
 
 // --------------------------------------------------
@@ -302,13 +342,3 @@ export async function sendReadRange(
     sock.destroy();
   }
 }
-// trace: minor tcp client note (2025-09-25 14:37:00)
-// trace: minor tcp client note (2025-09-27 20:37:00)
-// trace: minor tcp client note (2025-09-29 10:7:00)
-// trace: minor tcp client note (2025-09-30 9:51:00)
-// trace: minor tcp client note (2025-10-04 15:58:00)
-// trace: minor tcp client note (2025-10-15 16:29:00)
-// trace: minor tcp client note (2025-10-16 17:13:00)
-// trace: minor tcp client note (2025-10-20 12:3:00)
-// trace: minor tcp client note (2025-10-27 20:41:00)
-// trace: minor tcp client note (2025-11-02 10:11:00)

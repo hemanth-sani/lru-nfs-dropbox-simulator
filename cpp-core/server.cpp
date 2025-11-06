@@ -110,33 +110,59 @@ public:
     bool get(const Key& k, std::vector<char>& out) {
         std::lock_guard<std::mutex> lk(mtx_);
         auto it = map_.find(k);
-        if (it == map_.end()) return false;
+        if (it == map_.end()) {
+            // 🔥 DEBUG LOG
+            LOGW("LRU MISS: off=" + std::to_string(k.off) + " len=" + std::to_string(k.len));
+            return false;
+        }
+
         order_.splice(order_.begin(), order_, it->second);
         out = it->second->second;
+
+        // 🔥 DEBUG LOG
+        LOGI("LRU HIT: off=" + std::to_string(k.off) + " len=" + std::to_string(k.len));
+
         return true;
     }
+
     void put(const Key& k, std::vector<char>&& val) {
         std::lock_guard<std::mutex> lk(mtx_);
         auto it = map_.find(k);
         if (it != map_.end()) {
             it->second->second = std::move(val);
             order_.splice(order_.begin(), order_, it->second);
+
+            // 🔥 DEBUG LOG
+            LOGI("LRU UPDATE (existing): off=" + std::to_string(k.off) + " len=" + std::to_string(k.len));
             return;
         }
+
         order_.emplace_front(k, std::move(val));
         map_[k] = order_.begin();
+
+        // 🔥 DEBUG LOG
+        LOGI("LRU INSERT: off=" + std::to_string(k.off) + " len=" + std::to_string(k.len));
+
         if (map_.size() > cap_) {
             auto& back = order_.back();
-            map_.erase(back.first);
+            Key victim = back.first;
+
+            // 🔥 DEBUG LOG
+            LOGW("LRU EVICT: off=" + std::to_string(victim.off) + " len=" + std::to_string(victim.len));
+
+            map_.erase(victim);
             order_.pop_back();
         }
     }
+
     void clear() {
         std::lock_guard<std::mutex> lk(mtx_);
+        LOGW("LRU CLEAR for this file"); // 🔥 DEBUG
         order_.clear();
         map_.clear();
     }
 };
+
 
 static std::mutex g_caches_mtx;
 static std::unordered_map<std::string, LRU*> g_fileCaches;

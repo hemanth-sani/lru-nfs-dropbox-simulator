@@ -14,15 +14,26 @@ export default function ViewFile() {
   const [loading, setLoading] = useState(true);
 
   // Fetch metadata + preview URL
+  const statCache = new Map<string, number>();
+
+  async function cachedStat(name: string): Promise<{ size: number }> {
+    if (statCache.has(name)) {
+      return { size: statCache.get(name)! };
+    }
+    const s = await statFile(name); // ← uses your existing API function
+    statCache.set(name, s.size);
+    return s;
+  }
+
   useEffect(() => {
   const revoked: string | null = null;
+
   (async () => {
     try {
       setLoading(true);
-      const s = await statFile(name);
+      const s = await cachedStat(name);
       setSize(s.size);
 
-      // NEW: use /~read for inline preview
       const previewUrl = `/api/files/~read/${encodeURIComponent(name)}`;
       setUrl(previewUrl);
 
@@ -33,10 +44,13 @@ export default function ViewFile() {
       setLoading(false);
     }
   })();
+
   return () => {
     if (revoked) URL.revokeObjectURL(revoked);
   };
-}, [name, toast]);
+}, [name]); // ✅ Only depends on name
+
+
 
 
   const ext = name.split(".").pop()?.toLowerCase();
